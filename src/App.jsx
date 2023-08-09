@@ -7,7 +7,7 @@ export default function App() {
   const [inputValue, setInputValue] = useState('');
 
   useEffect(() => {
-    fetch('datahttps://restcountries.com/v2/all.json')
+    fetch('https://restcountries.com/v2/all')
       .then((res) => res.json())
       .then((dados) => {
         setPaises(dados.sort(comparar));
@@ -24,7 +24,7 @@ export default function App() {
     return 0;
   }
 
-  function filtrarPais(pais) {
+  function Filtrar(pais) {
     if (filtro === 'todos') {
       return pais;
     } else if (filtro === pais.region) {
@@ -32,141 +32,91 @@ export default function App() {
     }
   }
 
-  function favoritarPais(i) {
-    const paisFavoritado = paises[i];
-    setFavoritos([...favoritos, paisFavoritado]);
+  function favoritar(i) {
+    const selectedPais = paises[i];
+    setFavoritos([...favoritos, selectedPais]);
     setPaises(paises.filter((_, index) => index !== i));
   }
 
-  function desfavoritarPais(i) {
-    const paisDesfavoritado = favoritos[i];
-    setPaises([...paises, paisDesfavoritado]);
+  function desfavoritar(i) {
+    const deselectedPais = favoritos[i];
+    setPaises([...paises, deselectedPais]);
     setFavoritos(favoritos.filter((_, index) => index !== i));
   }
 
-  function handleFiltroChange(regiao) {
-    setFiltro(regiao);
-  }
-
-  function handleInputValueChange(event) {
-    setInputValue(event.target.value);
-  }
-
-  function renderizarTabelaPaises() {
+  function geraTabela(items, populacaoTotal, total, isFavorites) {
     return (
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border p-2">Bandeira</th>
-            <th className="border p-2">Código</th>
-            <th className="border p-2">Nome</th>
-            <th className="border p-2">Capital</th>
-            <th className="border p-2">População</th>
-            <th className="border p-2">Ação</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paises.filter(filtrarPais).map((pais, i) => (
-            <tr key={i} className="bg-white">
-              <td className="border p-2">
-                <img
-                  className="w-10 h-6 object-contain"
-                  src={pais.flags.svg}
-                  alt={`${pais.name} Flag`}
-                />
-              </td>
-              <td className="border p-2">{pais.alpha2Code}</td>
-              <td className="border p-2">{pais.name}</td>
-              <td className="border p-2">{pais.capital}</td>
-              <td className="border p-2">{pais.population}</td>
-              <td className="border p-2">
-                <button
-                  className="border rounded p-1 bg-blue-500 text-white"
-                  onClick={() => favoritarPais(i)}
-                >
-                  Favoritar
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <>
+        <h1 className="text-2xl text-center m-4">
+          Total de países: <span>{total}</span>
+        </h1>
+        <h1 className="text-2xl text-center m-4">
+          População Total: <span>{populacaoTotal}</span>
+        </h1>
+        <table className="w-full">
+          <tbody>
+            {items
+              .filter(Filtrar)
+              .filter((pais) =>
+                pais.name.toUpperCase().includes(inputValue.toUpperCase())
+              )
+              .map((pais, i) => (
+                <tr key={i}>
+                  <td>
+                    <img
+                      className="aspect-video h-20"
+                      src={pais.flags.svg}
+                      alt={`Flag of ${pais.name}`}
+                    />
+                  </td>
+                  <td>{pais.alpha2Code}</td>
+                  <td>{pais.name}</td>
+                  <td>{pais.capital}</td>
+                  <td>{pais.population}</td>
+                  <td>
+                    <button
+                      className="border-2 rounded-lg p-2"
+                      onClick={() => (isFavorites ? desfavoritar(i) : favoritar(i))}
+                    >
+                      {isFavorites ? 'Desfavoritar' : 'Favoritar'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </>
     );
   }
 
-  function renderizarTabelaFavoritos() {
-    return (
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border p-2">Bandeira</th>
-            <th className="border p-2">Código</th>
-            <th className="border p-2">Nome</th>
-            <th className="border p-2">Capital</th>
-            <th className="border p-2">População</th>
-            <th className="border p-2">Ação</th>
-          </tr>
-        </thead>
-        <tbody>
-          {favoritos.filter(filtrarPais).map((pais, i) => (
-            <tr key={i} className="bg-white">
-              <td className="border p-2">
-                <img
-                  className="w-10 h-6 object-contain"
-                  src={pais.flags.svg}
-                  alt={`${pais.name} Flag`}
-                />
-              </td>
-              <td className="border p-2">{pais.alpha2Code}</td>
-              <td className="border p-2">{pais.name}</td>
-              <td className="border p-2">{pais.capital}</td>
-              <td className="border p-2">{pais.population}</td>
-              <td className="border p-2">
-                <button
-                  className="border rounded p-1 bg-red-500 text-white"
-                  onClick={() => desfavoritarPais(i)}
-                >
-                  Desfavoritar
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  }
+  const populacaoTotal = paises.reduce((a, b) => a + b.population, 0);
+  const totalPaises = paises.length;
+  const populacaoFavoritos = favoritos.reduce((a, b) => a + b.population, 0);
+  const totalFavoritos = favoritos.length;
 
   return (
-    <div className="bg-gray-100 min-h-screen p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-4">
-          <button
-            onClick={() => handleFiltroChange('todos')}
-            className={`border rounded p-2 ${
-              filtro === 'todos' ? 'bg-blue-500 text-white' : ''
-            }`}
-          >
-            Todos
-          </button>
-          {/* Botões de filtro adicionais */}
-        </div>
+    <div className="grid grid-cols-2 grid-rows-[auto_auto_1fr] gap-4 p-4">
+      <fieldset
+        id="fieldset"
+        className="w-full p-2 flex justify-between row-start-1 row-end-2 col-start-1 col-end-3"
+      >
+        {/* Radio buttons for filtering */}
+      </fieldset>
+      <div className="w-full row-start-2 row-end-3 col-start-1 col-end-3">
         <input
+          className="w-full p-2 border-2"
           type="text"
-          placeholder="Pesquisar país..."
-          className="border p-2 w-full mb-4"
+          id="input"
+          placeholder="Digite um país"
           value={inputValue}
-          onChange={handleInputValueChange}
+          onChange={(e) => setInputValue(e.target.value)}
         />
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Países</h2>
-            {renderizarTabelaPaises()}
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Favoritos</h2>
-            {renderizarTabelaFavoritos()}
-          </div>
-        </div>
+      </div>
+      <div className="w-full row-start-3 row-end-4 col-start-1 col-end-2">
+        {geraTabela(paises, populacaoTotal, totalPaises, false)}
+      </div>
+      <div className="w-full row-start-3 row-end-4 col-start-2 col-end-3">
+        {geraTabela(favoritos, populacaoFavoritos, totalFavoritos, true)}
       </div>
     </div>
   );
