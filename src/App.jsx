@@ -10,11 +10,11 @@ export default function App() {
     fetch('https://restcountries.com/v2/all')
       .then((res) => res.json())
       .then((dados) => {
-        setPaises(dados.sort(comparar));
+        setPaises(dados.sort(Comparar));
       });
   }, []);
 
-  function comparar(a, b) {
+  function Comparar(a, b) {
     if (a.name < b.name) {
       return -1;
     }
@@ -32,19 +32,19 @@ export default function App() {
     }
   }
 
-  function favoritar(i) {
-    const selectedPais = paises[i];
-    setFavoritos([...favoritos, selectedPais]);
+  function Favoritar(i) {
+    const PaisSelecionado = paises[i];
+    setFavoritos([...favoritos, PaisSelecionado]);
     setPaises(paises.filter((_, index) => index !== i));
   }
 
-  function desfavoritar(i) {
-    const deselectedPais = favoritos[i];
-    setPaises([...paises, deselectedPais]);
+  function Desfavoritar(i) {
+    const PaisNselecionado = favoritos[i];
+    setPaises([...paises, PaisNselecionado]);
     setFavoritos(favoritos.filter((_, index) => index !== i));
   }
 
-  function geraTabela(items, populacaoTotal, total, isFavorites) {
+  function GeraTabela(items, populacaoTotal, total, isFavorites) {
     return (
       <>
         <h1 className="text-2xl text-center m-4">
@@ -75,8 +75,8 @@ export default function App() {
                   <td>{pais.population}</td>
                   <td>
                     <button
-                      className="border-2 rounded-lg p-2"
-                      onClick={() => (isFavorites ? desfavoritar(i) : favoritar(i))}
+                      className="rounded p-2 bg-[#0a9396]"
+                      onClick={() => (isFavorites ? Desfavoritar(i) : Favoritar(i))}
                     >
                       {isFavorites ? 'Desfavoritar' : 'Favoritar'}
                     </button>
@@ -95,7 +95,7 @@ export default function App() {
   const totalFavoritos = favoritos.length;
 
   return (
-    <div className="grid grid-cols-2 grid-rows-[auto_auto_1fr] gap-4 p-4">
+    <div className="grid grid-cols-2 grid-rows-[auto_auto_1fr] gap-4 p-4 bg-[#005f73]">
       <fieldset
         id="fieldset"
         className="w-full p-2 flex justify-between row-start-1 row-end-2 col-start-1 col-end-3"
@@ -104,7 +104,7 @@ export default function App() {
       </fieldset>
       <div className="w-full row-start-2 row-end-3 col-start-1 col-end-3">
         <input
-          className="w-full p-2 border-2"
+          className="w-full p-2 rounded bg-[#90e0ef]"
           type="text"
           id="input"
           placeholder="Digite um país"
@@ -113,10 +113,10 @@ export default function App() {
         />
       </div>
       <div className="w-full row-start-3 row-end-4 col-start-1 col-end-2">
-        {geraTabela(paises, populacaoTotal, totalPaises, false)}
+        {GeraTabela(paises, populacaoTotal, totalPaises, false)}
       </div>
       <div className="w-full row-start-3 row-end-4 col-start-2 col-end-3">
-        {geraTabela(favoritos, populacaoFavoritos, totalFavoritos, true)}
+        {GeraTabela(favoritos, populacaoFavoritos, totalFavoritos, true)}
       </div>
     </div>
   );
